@@ -167,9 +167,13 @@ void CSerial::config(void)
 
 //Transmit/Writing Data
 void CSerial::transmit_data(DWORD nbBytes) {
-	DWORD BytesWritten;
+	DWORD BytesWritten,Tx,Rx;
+	DWORD IsOK;
 	FT_STATUS fStatus = FT_Write(m_ftHandle,TxBuffer, nbBytes, &BytesWritten);
+	fStatus = FT_GetStatus(m_ftHandle,&Rx,&Tx, &IsOK);
+	Sleep(500);
 	if (fStatus == FT_OK) {
+		fStatus = FT_Purge(m_ftHandle,FT_PURGE_RX | FT_PURGE_TX);
 		printf("%c\n", TxBuffer[0]); 
 	}
 	else {
@@ -182,9 +186,7 @@ void CSerial::receive_data(DWORD nbBytes) {
 	DWORD BytesReceived;
 	FT_STATUS fStatus = FT_Read(m_ftHandle,RxBuffer,nbBytes,&BytesReceived);
 	if (fStatus == FT_OK) {
-		//printf("%c\n", RxBuffer[0]);
-		TxBuffer[0] = RxBuffer[0] + 1;
-		//printf("Tx updated = %c\n", TxBuffer[0]);
+
 	}
 	else {
 		printf("Problème de configuration !\n");
