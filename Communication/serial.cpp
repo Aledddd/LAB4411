@@ -133,10 +133,10 @@ void CSerial::config(void)
 		}
 	}
 	// Configure the flowcontrol
-	printf("Config Read & Write Timeouts ? (0 no / 1 yes)\n");
+	printf("Config FlowControl ? (0 no / 1 yes)\n");
 	scanf_s("%d", &flowcontrol);
 	if (flowcontrol == 1) {
-
+		m_fStatus = FT_SetFlowControl(m_ftHandle,,)
 	}
 
 }
