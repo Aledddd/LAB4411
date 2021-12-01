@@ -25,9 +25,9 @@ int _tmain(int argc, _TCHAR* argv[])
   // C'est plus pratique si vous changez de carte entre les séances de TP
   if (carte_1.open(carte_1.ret_num_serie(1))==true && carte_2.open(carte_2.ret_num_serie(2)) == true)
   {
-	  /*printf("Config BandRate carte_1...\n");
+	  /*printf("Config carte_1...\n");
 	  carte_1.config();
-	  printf("Config BandRate carte_2...\n");
+	  printf("Config carte_2...\n");
 	  carte_2.config();*/
 	  carte_1.TxBuffer[0] = 'a';
 	  /*carte_1.transmit_data(1);
@@ -35,16 +35,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	  carte_2.TxBuffer[0] += 1;
 	  carte_2.transmit_data(1);
 	  carte_1.receive_data(1);*/
-	// while (carte_1.RxBuffer[0] != 'c' || carte_2.RxBuffer[0] != 'c') {
-		 printf("Carte_1 TX : ");
+	while (carte_1.RxBuffer[0] != 'z') {
+		printf("Carte_1 TX : ");
 		carte_1.transmit_data(1);
-		printf("Carte_2 RX : ");
+		//printf("Carte_2 RX : ");
 		carte_2.receive_data(1);
+		carte_1.close();
+		carte_1.open(carte_1.ret_num_serie(1));
 		printf("Carte_2 TX : ");
 		carte_2.transmit_data(1);
-		printf("Carte_1 RX : ");
+		//printf("Carte_1 RX : ");
 		carte_1.receive_data(1);
-	// }
+		carte_2.close();
+		carte_2.open(carte_2.ret_num_serie(2));
+	}
 	  carte_1.close();
 	  carte_2.close();
   }

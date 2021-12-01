@@ -92,9 +92,8 @@ char* CSerial::ret_num_serie(DWORD numCarte)
 void CSerial::config(void)
 {
 	DWORD BaudRate;
-	UCHAR WordLenght;
-	UCHAR StopBit;
-	UCHAR ParityBit;
+	UCHAR WordLenght, StopBit, ParityBit, uXon, uXoff;
+	USHORT Flow;
 	int baud,features,flowcontrol;
 	printf("Config BaudRate ? (0 no / 1 yes)\n");
 	scanf_s("%d", &baud);
@@ -116,12 +115,12 @@ void CSerial::config(void)
 	scanf_s("%d", &features);
 	if (features == 1) {
 
-		printf("Saisir la longueur du mot en bits : ");
-		scanf_s("%c", &WordLenght);
-		printf("Saisir la valeur du bit de stop : ");
-		scanf_s("%d", &StopBit);
-		printf("Saisir la valeur du bit de parité : ");
-		scanf_s("%d", &ParityBit);
+		printf("Saisir la longueur du mot en bits (7 ou 8 bits) : ");
+		scanf_s("%hhu", &WordLenght);
+		printf("Saisir la valeur du bit de stop (0 ou 1): ");
+		scanf_s("%hhu", &StopBit);
+		printf("Saisir la valeur du bit de parité (0 ou 1) : ");
+		scanf_s("%hhu", &ParityBit);
 		m_ftStatus = FT_SetDataCharacteristics(m_ftHandle, WordLenght, StopBit, ParityBit);
 
 		if (m_ftStatus == FT_OK) {
@@ -135,10 +134,35 @@ void CSerial::config(void)
 	// Configure the flowcontrol
 	printf("Config FlowControl ? (0 no / 1 yes)\n");
 	scanf_s("%d", &flowcontrol);
-	if (flowcontrol == 1) {
-		m_fStatus = FT_SetFlowControl(m_ftHandle,,)
-	}
 
+	if (flowcontrol == 1) {
+		printf("Saisir le chiffre associé ( 0 : FT_FLOW_NONE / 1 : FT_FLOW_RTS_CTS / 2 :FT_FLOW_DTR_DSR / 4 : FT_FLOW_XON_XOFF) : ");
+		scanf_s("%hu", &Flow);
+		if (Flow == 4) {
+			printf("Signal uXon : ");
+			scanf_s("%hhu", &uXon);
+			printf("Signal uXoff : ");
+			scanf_s("%hhu", &uXoff);
+			m_ftStatus = FT_SetFlowControl(m_ftHandle, Flow,uXon,uXoff);
+			if (m_ftStatus == FT_OK) {
+				printf("Contrôle de flux modifié !\n");
+			}
+			else {
+				printf("Problème de configuration !\n");
+				exit(-1);
+			}
+		}
+		else {
+			m_ftStatus = FT_SetFlowControl(m_ftHandle, Flow, NULL,NULL);
+			if (m_ftStatus == FT_OK) {
+				printf("Contrôle de flux modifié !\n");
+			}
+			else {
+				printf("Problème de configuration !\n");
+				exit(-1);
+			}
+		}
+	}
 }
 
 //Transmit/Writing Data
@@ -152,15 +176,15 @@ void CSerial::transmit_data(DWORD nbBytes) {
 		printf("Problème de configuration !\n");
 	}
 }
+
 //Receiving/Reading Data
 void CSerial::receive_data(DWORD nbBytes) {
 	DWORD BytesReceived;
 	FT_STATUS fStatus = FT_Read(m_ftHandle,RxBuffer,nbBytes,&BytesReceived);
 	if (fStatus == FT_OK) {
-		printf("%c\n", RxBuffer[0]);
-		RxBuffer[0] +=1;
-		TxBuffer[0] = RxBuffer[0];
-
+		//printf("%c\n", RxBuffer[0]);
+		TxBuffer[0] = RxBuffer[0] + 1;
+		//printf("Tx updated = %c\n", TxBuffer[0]);
 	}
 	else {
 		printf("Problème de configuration !\n");
